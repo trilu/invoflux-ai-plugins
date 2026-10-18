@@ -1,0 +1,14 @@
+{
+  "name": "invoflux",
+  "version": "0.1.0",
+  "description": "Invoflux for Claude: your invoices, bank transactions and suppliers, with skills for month-end close, missing invoices, sending documents to Invoflux and an accountant's weekly client status.",
+  "author": {
+    "name": "Invoflux",
+    "email": "hello@invoflux.com",
+    "url": "https://invoflux.com"
+  },
+  "homepage": "https://invoflux.com/en/developers",
+  "repository": "https://github.com/trilu/invoflux-ai-plugins",
+  "license": "MIT",
+  "keywords": ["invoices", "accounting", "bank reconciliation", "e-Factura", "bookkeeping"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "invoflux",
+  "description": "The official Invoflux plugin for Claude Code.",
+  "owner": {
+    "name": "Invoflux",
+    "email": "hello@invoflux.com"
+  },
+  "plugins": [
+    {
+      "name": "invoflux",
+      "source": "./",
+      "description": "Invoflux connector and skills: month-end close, missing invoices, sending documents, accountant client status."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "invoflux": {
+      "type": "http",
+      "url": "https://mcp.invoflux.com/mcp"
+    }
+  }
+}
