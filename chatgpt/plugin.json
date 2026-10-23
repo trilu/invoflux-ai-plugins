@@ -57,9 +57,9 @@
             },
             {
               "description": "Unmatched bank payments above an amount in the current quarter.",
-              "prompt": "Show my unmatched bank payments over 500 RON this quarter.",
+              "prompt": "Show my unmatched outgoing bank payments over 500 RON this quarter.",
               "tools_triggered": "transactions_get_unmatched",
-              "expected_behavior": "Lists the unmatched outgoing payments above 500 RON since 1 October 2026 with date, counterparty and amount, including 1,549.34 RON to Demo Contabilitate Exemplu SRL on 18 October 2026."
+              "expected_behavior": "Lists the unmatched outgoing payments above 500 RON since 1 October 2026 with date, counterparty and amount, exactly two: 1,238.87 RON to Demo Software Licente SRL on 16 October 2026 and 1,549.34 RON to Demo Contabilitate Exemplu SRL on 18 October 2026. Incoming payments are not listed."
             },
             {
               "description": "Spending comparison between two months, by category.",
