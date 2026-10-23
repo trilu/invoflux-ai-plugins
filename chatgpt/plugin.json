@@ -1,0 +1,135 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "invoflux",
+  "version": "1.0.0",
+  "description": "Invoflux in ChatGPT: a company's invoices, bank transactions, suppliers and spending, with skills for month-end close, missing invoices, sending documents to Invoflux and an accountant's weekly client status.",
+  "author": {
+    "name": "Invoflux",
+    "email": "hello@invoflux.com",
+    "url": "https://invoflux.com"
+  },
+  "homepage": "https://invoflux.com/en/developers",
+  "repository": "https://github.com/trilu/invoflux-ai-plugins",
+  "license": "MIT",
+  "keywords": [
+    "invoices",
+    "accounting",
+    "bank reconciliation",
+    "e-Factura",
+    "bookkeeping"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Invoflux",
+        "shortDescription": "Invoices, bank and e-Factura",
+        "longDescription": "Invoflux collects a company's invoices from email, e-Factura (ANAF SPV) and uploads, files them, and matches them with its bank transactions. Connect Invoflux to ask about that data and act on it from the chat.\n\nAsk questions: what the company owes each supplier today, which bank payments still have no invoice, what was spent by category, how this quarter compares with the last one, which invoices are overdue, and whether a month is ready to close.\n\nGet things done: send an invoice or receipt to Invoflux, link a payment to its invoice, record a cash payment, tag or note an invoice, mark duplicates, ignore a document that is not yours (and restore it), move an invoice to another of your companies, start an e-Factura or bank sync, run automatic matching, and build a period export (CSV, SAGA, XML or the original files) for your accountant.\n\nSales invoices: prepare a draft for a client from the chat. Issuing it, and sending it to e-Factura, always needs a person's confirmation on an approval page in Invoflux.\n\nFor accountants: see every client's missing documents and month status in one view.\n\nYou stay in control. When you connect, you choose the companies the assistant can see and whether it may only read or also act. Invoflux never deletes invoices and never sends or receives payments. Every action is recorded, and each company's data stays separate. Invoflux is Google CASA Tier 2 certified.\n\nAn Invoflux account is required; you sign in when you connect.",
+        "developerName": "Invoflux",
+        "category": "Finance",
+        "capabilities": [
+          "Read invoices, bank transactions and suppliers",
+          "Find missing invoices",
+          "Match payments to invoices",
+          "Send documents to Invoflux",
+          "Build exports for the accountant",
+          "Prepare sales invoice drafts"
+        ],
+        "websiteURL": "https://invoflux.com",
+        "supportURL": "https://invoflux.com/en/contact",
+        "privacyPolicyURL": "https://invoflux.com/en/privacy",
+        "termsOfServiceURL": "https://invoflux.com/en/terms",
+        "defaultPrompt": [
+          "Which supplier invoices are missing for last month's bank payments?",
+          "Show my unmatched bank payments over 500 RON this quarter.",
+          "How much do I owe each supplier today?"
+        ],
+        "composerIcon": "./assets/logo.png",
+        "logo": "./assets/logo.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Missing invoices: bank payments from last month that have no invoice.",
+              "prompt": "Which bank payments from last month in Demo Studio Exemplu SRL still have no invoice?",
+              "tools_triggered": "invoices_get_missing",
+              "expected_behavior": "Lists last month's bank payments with no invoice, grouped by counterparty, each with its date and amount in its currency."
+            },
+            {
+              "description": "Unmatched bank payments above an amount in the current quarter.",
+              "prompt": "Show my unmatched bank payments over 500 RON this quarter.",
+              "tools_triggered": "transactions_get_unmatched",
+              "expected_behavior": "Lists the unmatched outgoing payments above 500 RON since 1 October 2026 with date, counterparty and amount, including 1,549.34 RON to Demo Contabilitate Exemplu SRL on 18 October 2026."
+            },
+            {
+              "description": "Spending comparison between two months, by category.",
+              "prompt": "How did our spending by category in September 2026 compare with August 2026?",
+              "tools_triggered": "spending_compare_periods",
+              "expected_behavior": "Gives the total per category for both months with the currency, and the change between them."
+            },
+            {
+              "description": "Record a cash payment for an unpaid supplier invoice (a write; undo with invoices_unmark_paid_cash).",
+              "prompt": "Mark invoice DCU-202608-1 from Demo Curierat Exemplu SRL as paid in cash.",
+              "tools_triggered": "invoices_search, invoices_mark_paid_cash",
+              "expected_behavior": "Finds the invoice and confirms it is marked paid in cash for 134.73 RON. Asking again reports that it is already settled."
+            },
+            {
+              "description": "Link a bank payment to its invoice (a write; undo with transactions_unlink_invoice).",
+              "prompt": "Link the 1,549.34 RON payment from 18 October 2026 to invoice DCE-202610-1.",
+              "tools_triggered": "transactions_get_unmatched, invoices_search, transactions_link_invoice",
+              "expected_behavior": "Finds the payment and the invoice from Demo Contabilitate Exemplu SRL, links them, and confirms the payment now reads as matched."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Paying a supplier: Invoflux moves no money.",
+              "prompt": "Pay the Demo Spatii Birouri SRL rent invoice from my bank account.",
+              "expected_behavior": "Explains that Invoflux cannot send payments, and offers to record the payment once it has been made."
+            },
+            {
+              "description": "Tax advice is outside Invoflux.",
+              "prompt": "Should my company register for VAT?",
+              "expected_behavior": "No Invoflux tool is called; the answer does not present Invoflux data as tax advice."
+            },
+            {
+              "description": "A request unrelated to invoices or bank transactions.",
+              "prompt": "What is the weather in Cluj today?",
+              "expected_behavior": "No Invoflux tool is called."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "Invoflux does not sell products or take payments in ChatGPT."
+      },
+      "publication": {
+        "release_notes": "First release of Invoflux in ChatGPT. Read invoices, bank transactions, suppliers, spending and what is owed. With the user's permission: link payments, record cash payments, tag, note, ignore or move invoices, send documents, start syncs, run matching, build exports and prepare sales invoice drafts (issuing needs a person's confirmation in Invoflux). Includes four skills: month-end close, missing invoices, sending documents and an accountant's weekly client status.",
+        "translations": {
+          "ro-RO": {
+            "subtitle": "Facturi, bancă și e-Factura",
+            "description": "Invoflux colectează facturile unei firme din email, e-Factura (ANAF SPV) și încărcări, le arhivează și le potrivește cu tranzacțiile bancare. Conectează Invoflux ca să întrebi despre aceste date și să acționezi direct din chat.\n\nÎntreabă: cât datorează firma fiecărui furnizor azi, ce plăți bancare nu au încă factură, cât s-a cheltuit pe categorii, cum arată trimestrul acesta față de cel trecut, ce facturi sunt restante și dacă o lună poate fi închisă.\n\nRezolvă: trimite o factură sau un bon în Invoflux, leagă o plată de factura ei, înregistrează o plată în numerar, adaugă o etichetă sau o notă, marchează duplicatele, ignoră un document care nu este al tău (și restaurează-l), mută o factură la altă firmă de-a ta, pornește o sincronizare e-Factura sau bancară, rulează potrivirea automată și creează un export pe o perioadă (CSV, SAGA, XML sau fișierele originale) pentru contabil.\n\nFacturi de vânzare: pregătește din chat o ciornă pentru un client. Emiterea ei și trimiterea în e-Factura cer întotdeauna confirmarea unei persoane, pe o pagină de aprobare din Invoflux.\n\nPentru contabili: documentele lipsă și starea lunii pentru toți clienții, într-o singură vedere.\n\nTu ai controlul. La conectare alegi firmele pe care asistentul le poate vedea și dacă are voie doar să citească sau și să acționeze. Invoflux nu șterge niciodată facturi și nu trimite și nu primește plăți. Fiecare acțiune este înregistrată, iar datele fiecărei firme rămân separate. Invoflux are certificarea Google CASA Tier 2.\n\nAi nevoie de un cont Invoflux; te autentifici la conectare."
+          },
+          "pl-PL": {
+            "subtitle": "Faktury, bank i e-Factura",
+            "description": "Invoflux zbiera faktury firmy z poczty e-mail, e-Factura (ANAF SPV) i przesłanych plików, archiwizuje je i dopasowuje do transakcji bankowych. Połącz Invoflux, aby pytać o te dane i działać na nich bezpośrednio z czatu.\n\nZadawaj pytania: ile firma jest dziś winna każdemu dostawcy, które płatności bankowe nie mają jeszcze faktury, ile wydano w poszczególnych kategoriach, jak ten kwartał wypada na tle poprzedniego, które faktury są przeterminowane i czy miesiąc można już zamknąć.\n\nZałatwiaj sprawy: wyślij fakturę lub paragon do Invoflux, połącz płatność z jej fakturą, zarejestruj płatność gotówkową, dodaj tag lub notatkę, oznacz duplikaty, zignoruj dokument, który nie jest Twój (i przywróć go), przenieś fakturę do innej Twojej firmy, uruchom synchronizację e-Factura lub banku, uruchom automatyczne dopasowanie i przygotuj eksport za okres (CSV, SAGA, XML lub oryginalne pliki) dla księgowego.\n\nFaktury sprzedażowe: przygotuj w czacie szkic faktury dla klienta. Jej wystawienie i wysłanie do e-Factura zawsze wymaga potwierdzenia przez osobę na stronie zatwierdzania w Invoflux.\n\nDla księgowych: brakujące dokumenty i stan miesiąca wszystkich klientów w jednym widoku.\n\nMasz kontrolę. Przy łączeniu wybierasz firmy, które asystent może widzieć, oraz to, czy może tylko czytać, czy także działać. Invoflux nigdy nie usuwa faktur i nigdy nie wysyła ani nie odbiera płatności. Każde działanie jest rejestrowane, a dane każdej firmy pozostają oddzielone. Invoflux ma certyfikat Google CASA Tier 2.\n\nWymagane jest konto Invoflux; logujesz się podczas łączenia."
+          },
+          "it-IT": {
+            "subtitle": "Fatture, banca ed e-Factura",
+            "description": "Invoflux raccoglie le fatture di un'azienda da email, e-Factura (ANAF SPV) e caricamenti, le archivia e le abbina alle transazioni bancarie. Collega Invoflux per fare domande su questi dati e agire direttamente dalla chat.\n\nFai domande: quanto deve oggi l'azienda a ogni fornitore, quali pagamenti bancari non hanno ancora una fattura, quanto è stato speso per categoria, come si confronta questo trimestre con il precedente, quali fatture sono scadute e se un mese è pronto per la chiusura.\n\nPorta a termine le attività: invia una fattura o una ricevuta a Invoflux, collega un pagamento alla sua fattura, registra un pagamento in contanti, aggiungi un'etichetta o una nota, segna i duplicati, ignora un documento che non è tuo (e ripristinalo), sposta una fattura in un'altra delle tue aziende, avvia una sincronizzazione e-Factura o bancaria, esegui l'abbinamento automatico e crea un export per periodo (CSV, SAGA, XML o i file originali) per il commercialista.\n\nFatture di vendita: prepara dalla chat una bozza per un cliente. L'emissione e l'invio a e-Factura richiedono sempre la conferma di una persona, su una pagina di approvazione in Invoflux.\n\nPer i commercialisti: i documenti mancanti e lo stato del mese di tutti i clienti in un'unica vista.\n\nIl controllo resta a te. Al collegamento scegli le aziende che l'assistente può vedere e se può solo leggere o anche agire. Invoflux non elimina mai fatture e non invia né riceve pagamenti. Ogni azione viene registrata e i dati di ogni azienda restano separati. Invoflux ha la certificazione Google CASA Tier 2.\n\nServe un account Invoflux; l'accesso avviene al momento del collegamento."
+          },
+          "fr-FR": {
+            "subtitle": "Factures, banque et e-Factura",
+            "description": "Invoflux collecte les factures d'une entreprise depuis l'e-mail, e-Factura (ANAF SPV) et les envois de fichiers, les classe et les rapproche de ses transactions bancaires. Connectez Invoflux pour poser des questions sur ces données et agir directement depuis le chat.\n\nPosez vos questions : ce que l'entreprise doit aujourd'hui à chaque fournisseur, quels paiements bancaires n'ont pas encore de facture, combien a été dépensé par catégorie, comment ce trimestre se compare au précédent, quelles factures sont en retard et si un mois est prêt à être clôturé.\n\nPassez à l'action : envoyez une facture ou un reçu à Invoflux, rapprochez un paiement de sa facture, enregistrez un paiement en espèces, ajoutez une étiquette ou une note, signalez les doublons, ignorez un document qui n'est pas le vôtre (et restaurez-le), déplacez une facture vers une autre de vos entreprises, lancez une synchronisation e-Factura ou bancaire, lancez le rapprochement automatique et créez un export sur une période (CSV, SAGA, XML ou fichiers d'origine) pour votre comptable.\n\nFactures de vente : préparez depuis le chat un brouillon pour un client. Son émission et son envoi à e-Factura exigent toujours la confirmation d'une personne, sur une page d'approbation dans Invoflux.\n\nPour les comptables : les documents manquants et l'état du mois de tous les clients dans une seule vue.\n\nVous gardez le contrôle. À la connexion, vous choisissez les entreprises que l'assistant peut voir et s'il peut seulement lire ou aussi agir. Invoflux ne supprime jamais de factures et n'envoie ni ne reçoit jamais de paiements. Chaque action est enregistrée et les données de chaque entreprise restent séparées. Invoflux est certifié Google CASA Tier 2.\n\nUn compte Invoflux est nécessaire ; vous vous identifiez au moment de la connexion."
+          },
+          "es-ES": {
+            "subtitle": "Facturas, banco y e-Factura",
+            "description": "Invoflux reúne las facturas de una empresa desde el correo electrónico, e-Factura (ANAF SPV) y archivos subidos, las archiva y las concilia con sus transacciones bancarias. Conecta Invoflux para preguntar sobre esos datos y actuar directamente desde el chat.\n\nHaz preguntas: cuánto debe hoy la empresa a cada proveedor, qué pagos bancarios aún no tienen factura, cuánto se gastó por categoría, cómo se compara este trimestre con el anterior, qué facturas están vencidas y si un mes está listo para cerrarse.\n\nResuelve tareas: envía una factura o un recibo a Invoflux, vincula un pago con su factura, registra un pago en efectivo, añade una etiqueta o una nota, marca duplicados, ignora un documento que no es tuyo (y restáuralo), mueve una factura a otra de tus empresas, inicia una sincronización de e-Factura o del banco, ejecuta la conciliación automática y crea una exportación de un periodo (CSV, SAGA, XML o los archivos originales) para tu contable.\n\nFacturas de venta: prepara desde el chat un borrador para un cliente. Emitirlo y enviarlo a e-Factura siempre requiere la confirmación de una persona en una página de aprobación de Invoflux.\n\nPara contables: los documentos que faltan y el estado del mes de todos los clientes en una sola vista.\n\nTú tienes el control. Al conectar, eliges las empresas que el asistente puede ver y si solo puede leer o también actuar. Invoflux nunca elimina facturas y nunca envía ni recibe pagos. Cada acción queda registrada y los datos de cada empresa se mantienen separados. Invoflux cuenta con la certificación Google CASA Tier 2.\n\nSe necesita una cuenta de Invoflux; inicias sesión al conectar."
+          },
+          "hu-HU": {
+            "subtitle": "Számlák, bank és e-Factura",
+            "description": "Az Invoflux összegyűjti egy cég számláit e-mailből, az e-Factura rendszerből (ANAF SPV) és a feltöltésekből, rendszerezi őket, és párosítja a banki tranzakciókkal. Csatlakoztasd az Invofluxot, hogy kérdezz ezekről az adatokról, és közvetlenül a csevegésből intézd a teendőket.\n\nKérdezz: mennyivel tartozik ma a cég az egyes szállítóknak, mely banki kifizetésekhez nincs még számla, mennyit költöttetek kategóriánként, hogyan alakul ez a negyedév az előzőhöz képest, mely számlák lejártak, és lezárható-e egy hónap.\n\nIntézd el: küldj egy számlát vagy nyugtát az Invofluxba, kapcsolj egy kifizetést a számlájához, rögzíts egy készpénzes fizetést, adj címkét vagy megjegyzést egy számlához, jelöld meg a duplikátumokat, hagyj figyelmen kívül egy nem hozzád tartozó dokumentumot (és állítsd vissza), helyezz át egy számlát egy másik cégedhez, indíts e-Factura vagy banki szinkronizálást, futtasd az automatikus párosítást, és készíts időszakos exportot (CSV, SAGA, XML vagy az eredeti fájlok) a könyvelődnek.\n\nKimenő számlák: készíts a csevegésből számlavázlatot egy ügyfélnek. A kiállításához és az e-Factura rendszerbe küldéséhez mindig egy személy megerősítése kell az Invoflux jóváhagyási oldalán.\n\nKönyvelőknek: az összes ügyfél hiányzó dokumentumai és havi állapota egyetlen nézetben.\n\nTe irányítasz. Csatlakozáskor kiválasztod, mely cégeket láthatja az asszisztens, és hogy csak olvashat, vagy műveleteket is végezhet. Az Invoflux soha nem töröl számlát, és soha nem küld vagy fogad kifizetést. Az Invoflux minden műveletet naplóz, és minden cég adatai elkülönítve maradnak. Az Invoflux Google CASA Tier 2 tanúsítvánnyal rendelkezik.\n\nInvoflux-fiók szükséges; a csatlakozáskor jelentkezel be."
+          }
+        }
+      }
+    }
+  }
+}
